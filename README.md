@@ -1,6 +1,6 @@
-# DR List Manager
+# ICom DR List Manager
 
-A Bash-based interactive terminal utility for creating and managing **Digital Radio (DR) repeater lists** compatible with **Icom ID-51** and **ID-52** transceivers. Designed for the Brazilian amateur radio community, with locale-aware formatting and full support for D-Star, FM, and FM-N operating modes.
+A Bash-based interactive terminal utility for creating and managing **Digital Radio (DR) repeater lists** compatible with **ICom ID-51** and **ID-52** transceivers. Designed for the Brazilian amateur radio community, with locale-aware formatting and full support for D-Star, FM, and FM-N operating modes.
 
 ---
 
@@ -23,7 +23,7 @@ A Bash-based interactive terminal utility for creating and managing **Digital Ra
 
 ## Overview
 
-The Icom ID-51 and ID-52 handhelds accept a structured repeater/memory list that can be loaded via the **CS-51** / **CS-52** programming software. `DR_list_manager.sh` provides a fully interactive, menu-driven TUI (Text User Interface) to build and maintain that list directly in the terminal — no GUI tools required. Entries are stored in a plain CSV file that can be exported and imported directly into the Icom programming software.
+The ICom ID-51 and ID-52 handhelds accept a structured repeater/memory list that can be loaded via the **CS-51** / **CS-52** programming software. `DR_list_manager.sh` provides a fully interactive, menu-driven TUI (Text User Interface) to build and maintain that list directly in the terminal — no GUI tools required. Entries are stored in a plain CSV file that can be exported and imported directly into the Icom programming software.
 
 ---
 
