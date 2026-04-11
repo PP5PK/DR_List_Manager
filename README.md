@@ -1,6 +1,6 @@
-# ICom DR List Manager
+# DR List Manager
 
-A Bash-based interactive terminal utility for creating and managing **Digital Radio (DR) repeater lists** compatible with **ICom ID-51** and **ID-52** transceivers. Designed for the Brazilian amateur radio community, with locale-aware formatting and full support for D-Star, FM, and FM-N operating modes.
+A Bash-based interactive terminal utility for creating and managing **Digital Radio (DR) repeater lists** compatible with any **ICOM** transceiver that supports **DR mode** (ID-31, ID-51, ID-52, ID-5100, IC-9700, and others). Designed for the Brazilian amateur radio community, with locale-aware formatting and full support for D-Star, FM, and FM-N operating modes.
 
 ---
 
@@ -11,6 +11,7 @@ A Bash-based interactive terminal utility for creating and managing **Digital Ra
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [CSV Format](#csv-format)
+- [Menu Map](#menu-map)
 - [Menu Structure](#menu-structure)
 - [Field Reference](#field-reference)
 - [Validation Rules](#validation-rules)
@@ -23,7 +24,7 @@ A Bash-based interactive terminal utility for creating and managing **Digital Ra
 
 ## Overview
 
-The ICom ID-51 and ID-52 handhelds accept a structured repeater/memory list that can be loaded via the **CS-51** / **CS-52** programming software. `DR_list_manager.sh` provides a fully interactive, menu-driven TUI (Text User Interface) to build and maintain that list directly in the terminal — no GUI tools required. Entries are stored in a plain CSV file that can be exported and imported directly into the Icom programming software.
+Any ICOM transceiver equipped with **DR mode** (ID-31, ID-51, ID-52, ID-5100, IC-9700, and similar models) can load a structured repeater list through the respective **CS** programming software. `DR_list_manager.sh` provides a fully interactive, menu-driven TUI (Text User Interface) to build and maintain that list directly in the terminal — no GUI tools required. Entries are stored in a plain CSV file that can be exported and imported directly into the ICOM programming software.
 
 ---
 
@@ -86,7 +87,7 @@ On startup, the script automatically loads `Repeater_list.csv` from the current 
 
 > ⚠️ **Brazilian locale formatting — important**
 >
-> This application uses the following conventions, matching Brazilian system locale and the Icom CS-51/CS-52 software behavior under `pt_BR`:
+> This application uses the following conventions, matching Brazilian system locale and the ICOM CS programming software behavior under `pt_BR`:
 >
 > - **Column separator:** `;` (semicolon)
 > - **Decimal separator:** `,` (comma)
@@ -124,6 +125,131 @@ Group No;Group Name;Name;Sub Name;Repeater Call Sign;Gateway Call Sign;Frequency
 4;Santa Catarina;Florianopolis DV;SC;PP5ZFP B;PP5ZFP G;439,975000;DUP-;5,000000;DV;OFF;88,5Hz;YES;Approximate;-27,597222;-48,549167;-3:00
 4;Santa Catarina;Florianopolis FM;SC;PP5ZFP;;147,075000;DUP+;0,600000;FM;TSQL;88,5Hz;YES;Approximate;-27,597222;-48,549167;-3:00
 5;Parana;Curitiba Simplex;;;;146,520000;OFF;0,000000;FM;OFF;88,5Hz;YES;None;0,000000;0,000000;-3:00
+```
+
+### Organizational conventions (Brazilian reference list)
+
+The bundled `Repeater_list.csv` follows a geographic convention suited to Brazil, though the structure is flexible enough to be adapted to any country or region:
+
+- **Group No / Group Name** — each group represents a Brazilian **state** (e.g. Group 4 = Santa Catarina, Group 5 = Paraná). For other regions, groups could represent countries, provinces, counties, or any other logical division.
+- **Name** — identifies the **city** or locality where the repeater is located (e.g. `Florianopolis DV`, `Curitiba FM`).
+- **Sub Name** — an 8-character secondary label. Use it to add context when a city has multiple repeaters of the same mode, to indicate a club callsign abbreviation, a site name, or any other distinguishing detail (e.g. `Centro`, `Serra`, `146MHz`).
+
+---
+
+## Menu Map
+
+The diagram below shows the full navigation structure of the application. Every branch can be cancelled at any prompt by pressing `X`.
+
+```mermaid
+flowchart TD
+    START([▶ Start]) --> MAIN
+
+    MAIN["🏠 MAIN MENU
+    ──────────────────
+    1 · Edit Repeaters
+    2 · Add Repeater
+    3 · Edit Groups
+    4 · Advanced Query
+    5 · Manage Database
+    X · Exit"]
+
+    MAIN -->|1| OPT1
+    MAIN -->|2| OPT2
+    MAIN -->|3| OPT3
+    MAIN -->|4| OPT4
+    MAIN -->|5| OPT5
+    MAIN -->|X| EXIT([🔴 Exit])
+
+    OPT1["📋 GROUP LIST
+    ─────────────────────
+    Lists all groups
+    with station count"]
+    OPT1 --> GRPLIST["📄 REPEATER LIST
+    ─────────────────────
+    Paginated list
+    sorted by name
+    ─────────────────────
+    P · Next page
+    A · Prev page
+    V · Back to groups
+    X · Main menu"]
+    GRPLIST -->|Select №| DETAIL
+
+    DETAIL["🔍 REPEATER DETAIL
+    ─────────────────────
+    Shows all 17 fields
+    ─────────────────────
+    E · Edit
+    D · Delete
+    V · Back
+    X · Main menu"]
+    DETAIL -->|E| OPT2
+    DETAIL -->|D| CONFIRM_DEL{{"Confirm\ndelete?"}}
+    CONFIRM_DEL -->|s| DEL_OK(["✅ Deleted"])
+    CONFIRM_DEL -->|N| DETAIL
+
+    OPT2["✏️ ADD / EDIT FORM
+    ─────────────────────
+    Group No → Name
+    Sub Name → Mode
+    Dup → Offset
+    Frequency → Call Sign
+    Gateway → TONE
+    RPT1USE → Position
+    Lat / Lon → UTC Offset
+    ─────────────────────
+    Enter · keep default
+    X · cancel anytime"]
+    OPT2 --> SAVED(["✅ Saved to CSV"])
+
+    OPT3["👥 EDIT GROUPS
+    ─────────────────────
+    1 · Rename Group
+    2 · Remove Group
+    X · Back"]
+    OPT3 -->|1| RENAME["Rename → updates\nall linked entries"]
+    OPT3 -->|2| REMOVE["Remove →
+    Move to other group
+    or delete all entries"]
+
+    OPT4["🔎 ADVANCED QUERY
+    ─────────────────────
+    Up to 3 filters:
+    · Group (exact)
+    · Mode (exact)
+    · RPT1USE (exact)
+    · Call Sign (partial)
+    · Frequency (partial)"]
+    OPT4 --> RESULTS["📊 PAGINATED RESULTS
+    ─────────────────────
+    Sorted by group / name
+    ─────────────────────
+    P · Next page
+    A · Prev page
+    V · New search
+    X · Main menu"]
+    RESULTS -->|Select №| DETAIL
+
+    OPT5["💾 MANAGE DATABASE
+    ─────────────────────
+    1 · Select CSV file
+    2 · Import CSV
+    3 · Export CSV
+    4 · Validate database
+    5 · Clear database
+    X · Back"]
+    OPT5 -->|1| SEL["Select or create\na CSV base file"]
+    OPT5 -->|2| IMP["Validate external CSV
+    → Replace or Append
+    → Resolve group conflicts"]
+    OPT5 -->|3| EXP["Save as\nRptYYYYMMDD_XX.csv"]
+    OPT5 -->|4| VAL["Validate active DB
+    Per-line: Correct /
+    Skip / Abort"]
+    OPT5 -->|5| CLR{{"Confirm\nclear?"}}
+    CLR -->|s| CLEARED(["✅ Header only kept"])
+    CLR -->|N| OPT5
 ```
 
 ---
@@ -384,7 +510,7 @@ The validation engine (shared by both the manual add/edit form and the CSV impor
 - **Automatic backup** — a `.backup` file is created automatically before any destructive operation (delete repeater, remove group, switch database).
 - **Export before bulk changes** — use Option 5 → 3 to save a timestamped snapshot before making large edits.
 - **Locale in spreadsheet apps** — when opening the CSV in LibreOffice Calc or Excel, configure the import dialog for `;` as the column delimiter and `,` as the decimal separator to avoid data corruption.
-- **Icom programming software** — import the exported CSV through CS-51 or CS-52 using the memory channel CSV import function.
+- **ICOM programming software** — import the exported CSV through the CS software (CS-51, CS-52, CS-5100, etc.) using the memory channel CSV import function.
 - **The `;` character is forbidden** in all text fields and will be rejected with an error at entry time.
 - **Single instance** — the script uses a PID lock file at `/tmp/dr_list_manager.lock`. If a previous session crashed and left a stale lock, the script detects and removes it automatically on next launch.
 
@@ -426,8 +552,10 @@ This project is released under the **MIT License**. See [`LICENSE`](LICENSE) for
 
 ## Author
 
-Developed by **Daniel — PP5KX / PU5KOD**  
+Developed by **Daniel — PP5KX**  
 Amateur radio operator based in Mafra, Santa Catarina, Brazil  
+🌐 [pp5kx.net](https://pp5kx.net) · [dvbr.net](https://dvbr.net)
+
 Part of the [dvbr.net](https://dvbr.net) open infrastructure project for the Brazilian amateur radio community.
 
 *73 de PP5KX*
