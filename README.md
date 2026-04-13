@@ -11,7 +11,7 @@
 
 A Bash-based interactive terminal utility for creating and managing **Digital Radio (DR) repeater lists** compatible with any **ICOM** transceiver that supports **DR mode** (ID-31, ID-51, ID-52, ID-5100, IC-9700, and others). Designed for the Amateur Radio community, with locale-aware formatting can be easily applied in any scenario.                                                                                                  
 
-[Overview](#overview) • [Features](#features) • [Requirements](#requirements) • [Installation](#installation) • [CSV Format](#csv-format) • [Menu Map](#menu-map) • [Menu Structure](#menu-structure) • [Field Reference](#field-reference) • [Validation Rules](#validation-rules) • [Usage Tips](#usage-tips) • [Logging](#logging) • [Versioning](#versioning) • [License](#license)
+[Features](#features) • [Requirements](#requirements) • [Installation](#installation) • [CSV Format](#csv-format) • [Menu Structure](#menu-structure) • [Field Reference](#field-reference) • [Validation Rules](#validation-rules) • [Usage Tips](#usage-tips) • [Logging](#logging)
 
 </div>
 
@@ -132,7 +132,9 @@ The bundled `Repeater_list.csv` follows a geographic convention suited to Brazil
 
 ---
 
-## Menu Map
+## Menu Structure
+
+### Menu Map
 
 The diagram below shows the full navigation structure of the application. Every branch can be cancelled at any prompt by pressing `X`.
 
@@ -246,10 +248,6 @@ flowchart TD
     CLR -->|s| CLEARED(["✅ Header only kept"])
     CLR -->|N| OPT5
 ```
-
----
-
-## Menu Structure
 
 ### Main Menu
 
