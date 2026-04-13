@@ -7,7 +7,8 @@
 ![License](https://img.shields.io/badge/License-GNU-yellow)
 ![Maintained](https://img.shields.io/badge/Maintained-yes-green)
 
-**Utility for managing the Repeater List (DR) of ICom DStar radios.**
+**Utility for managing the Repeater List (DR) of ICom DStar radios.**  
+Manage • Validate • Import • Export
 
 A Bash-based interactive terminal utility for creating and managing **Digital Radio (DR) repeater lists** compatible with any **ICOM** transceiver that supports **DR mode** (ID-31, ID-51, ID-52, ID-5100, IC-9700, and others). Designed for the Amateur Radio community, with locale-aware formatting can be easily applied in any scenario.                                                                                                  
 
