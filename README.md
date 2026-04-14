@@ -349,29 +349,65 @@ Page 1 of 2 (18 items)
 
 A guided sequential form that collects all 17 fields for a new entry. The group name is auto-filled if the group number already exists in the database. For FM/FM-N modes, a numbered CTCSS tone table is displayed during the Repeater Tone selection step.
 
-**Field entry flow:**
+**Field entry flow for an analog repeater.**
 
 ```
->> Group No (1-50) [Enter keeps: 4 | X to cancel]: _
-  >> Associated Group Name: Santa Catarina
->> Name [X to cancel]: _
->> Sub Name [X to cancel]: _
+>> Group No (1-50) [X to cancel]: 28
+  >> Associated Group Name: HotSpots
+>> Name [X to cancel]: Rep. FM Example
+>> Sub Name [X to cancel]: Sub
   Mode: 1) DV   2) FM   3) FM-N
->> Choose (1-3) [X to cancel]: _
+>> Choose (1-3) [Enter keeps: FM | X to cancel]: 2
   Dup: 1) OFF   2) DUP-   3) DUP+
->> Choose (1-3) [X to cancel]: _
->> Offset (ex: 5,000000) [X to cancel]: _
->> Frequency (ex: 439,975000) [X to cancel]: _
->> Repeater Call Sign [X to cancel]: _
->> Gateway Call Sign [X to cancel]: _       ← DV duplex only
-  (CTCSS table shown for FM/FM-N)
+>> Choose (1-3) [Enter keeps: OFF | X to cancel]: 2
+>> Offset (ex: 5,000000) [Enter keeps: 0,000000 | X to cancel]: 5,000000
+>> Frequency (ex: 439,975000) [X to cancel]: 439,800000
+>> Repeater Call Sign (Optional) [X to cancel]: AB1CDE
+  TONE: 1) OFF   2) TONE   3) TSQL
+>> Choose (1-3) [Enter keeps: OFF | X to cancel]: 3
+
+  --- STANDARD ICOM CTCSS TONE TABLE ---
+   1) 67,0     2) 69,3     3) 71,9     4) 74,4     5) 77,0     6) 79,7     7) 82,5
+   8) 85,4     9) 88,5    10) 91,5    11) 94,8    12) 97,4    13) 100,0   14) 103,5
+  15) 107,2   16) 110,9   17) 114,8   18) 118,8   19) 123,0   20) 127,3   21) 131,8
+  22) 136,5   23) 141,3   24) 146,2   25) 151,4   26) 156,7   27) 159,8   28) 162,2
+  29) 165,5   30) 167,9   31) 171,3   32) 173,8   33) 177,3   34) 179,9   35) 183,5
+  36) 186,2   37) 189,9   38) 192,8   39) 196,6   40) 199,5   41) 203,5   42) 206,5
+  43) 210,7   44) 218,1   45) 225,7   46) 229,1   47) 233,6   48) 241,8   49) 250,3
+  50) 254,1
+>> Choose Repeater Tone (1-50) [X to cancel]: 30
   RPT1USE: 1) YES   2) NO
->> Choose (1-2) [X to cancel]: _
+>> Choose (1-2) [Enter keeps: YES | X to cancel]: 1
   Position: 1) None   2) Approximate   3) Exact
->> Choose (1-3) [X to cancel]: _
->> Latitude (ex: -26,149167) [X to cancel]: _
->> Longitude (ex: -49,812167) [X to cancel]: _
->> UTC Offset (ex: -3:00) [X to cancel]: _
+>> Choose (1-3) [Enter keeps: None | X to cancel]: 3
+>> Latitude (ex: -26,149167) [Enter keeps: 0,000000 | X to cancel]: -26,149167
+>> Longitude (ex: -49,812167) [Enter keeps: 0,000000 | X to cancel]: -49,812167
+>> UTC Offset (ex: -3:00) [Enter keeps: -3:00 | X to cancel]:-3:00
+```
+
+
+**Field entry flow for a digital repeater.**
+
+```
+>> Group No (1-50) [X to cancel]: 28
+  >> Associated Group Name: HotSpots
+>> Name [X to cancel]: Rep. DV Example
+>> Sub Name [X to cancel]: Sub
+  Mode: 1) DV   2) FM   3) FM-N
+>> Choose (1-3) [Enter keeps: FM | X to cancel]: 1
+  Dup: 1) OFF   2) DUP-   3) DUP+
+>> Choose (1-3) [Enter keeps: OFF | X to cancel]: 3
+>> Offset (ex: 5,000000) [Enter keeps: 0,000000 | X to cancel]: 5,000000
+>> Frequency (ex: 439,975000) [X to cancel]: 434,900000
+>> Repeater Call Sign [X to cancel]: PP5PK  C
+>> Gateway Call Sign [Enter keeps: PP5PK  G | X to cancel]:
+  RPT1USE: 1) YES   2) NO
+>> Choose (1-2) [Enter keeps: YES | X to cancel]: 1
+  Position: 1) None   2) Approximate   3) Exact
+>> Choose (1-3) [Enter keeps: None | X to cancel]: 3
+>> Latitude (ex: -26,149167) [Enter keeps: 0,000000 | X to cancel]: -26,149167
+>> Longitude (ex: -49,812167) [Enter keeps: 0,000000 | X to cancel]: -49,812167
+>> UTC Offset (ex: -3:00) [Enter keeps: -3:00 | X to cancel]: -3:00
 ```
 
 > The same form is reused for **editing** an existing repeater (reached from Option 1 → detail view → `[E]`), pre-populated with all current values.
