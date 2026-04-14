@@ -2,10 +2,10 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/Version-v3.8_en-blue)
+![Version](https://img.shields.io/badge/Version-v3.8_en-black)
 ![Linux](https://img.shields.io/badge/Debian-13%2B-red)
-![License](https://img.shields.io/badge/License-GNU-yellow)
-![Maintained](https://img.shields.io/badge/Maintained-yes-green)
+![License](https://img.shields.io/badge/License-GNU-blue)
+![Maintained](https://img.shields.io/badge/Maintained-yes-orange)
 
 **A utility for managing Digital Repeater (DR) lists compatible with any ICOM transceiver that has **DR mode****  
 Manage • Validate • Import • Export • Delete                                                                                                
@@ -384,7 +384,6 @@ A guided sequential form that collects all 17 fields for a new entry. The group 
 >> Longitude (ex: -49,812167) [Enter keeps: 0,000000 | X to cancel]: -49,812167
 >> UTC Offset (ex: -3:00) [Enter keeps: -3:00 | X to cancel]:-3:00
 ```
-
 
 **Field entry flow for a digital repeater.**
 
