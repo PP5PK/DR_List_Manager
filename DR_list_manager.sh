@@ -3,7 +3,7 @@
 # ==============================================================================
 # INITIAL SETTINGS AND VARIABLES
 # ==============================================================================
-APP_VERSION="3.8_en"
+APP_VERSION="3.8.2"
 # Default .csv file, whenever the app starts this file is loaded
 CSV_FILE="Repeater_list.csv"
 TEMP_FILE="temp_fixed.csv"
@@ -191,7 +191,7 @@ show_header() {
     local cols
     cols=$(tput cols 2>/dev/null)
     if ! [[ "$cols" =~ ^[0-9]+$ ]] || [[ "$cols" -lt 30 ]]; then cols=53; fi
-    [[ "$cols" -gt 80 ]] && cols=80
+    [[ "$cols" -gt 74 ]] && cols=74
     local inner=$((cols - 2))
     local border
     printf -v border '%*s' "$inner" ''
@@ -213,7 +213,7 @@ print_text() {
     local cols
     cols=$(tput cols 2>/dev/null)
     [[ ! "$cols" =~ ^[0-9]+$ ]] || [[ "$cols" -lt 30 ]] && cols=53
-    [[ "$cols" -gt 80 ]] && cols=80
+    [[ "$cols" -gt 74 ]] && cols=74
     local max_char=$((cols - 2))
     local fold_text
     fold_text=$(printf '%s' "$*" | fold -s -w "$max_char")
@@ -223,14 +223,14 @@ print_text() {
 }
 
 # ==============================================================================
-# FUNCTION: DYNAMIC SEPARATOR (ADAPTS TO TERMINAL WIDTH, MAX 80)
+# FUNCTION: DYNAMIC SEPARATOR (ADAPTS TO TERMINAL WIDTH, MAX 74)
 # ==============================================================================
 separator() {
     local color="${1:-$GREEN2}" char="${2:-═}"
     local cols
     cols=$(tput cols 2>/dev/null)
     if ! [[ "$cols" =~ ^[0-9]+$ ]] || [[ "$cols" -lt 30 ]]; then cols=53; fi
-    [[ "$cols" -gt 80 ]] && cols=80
+    [[ "$cols" -gt 74 ]] && cols=74
     local line
     printf -v line '%*s' "$cols" ''
     line="${line// /$char}"
@@ -246,7 +246,7 @@ show_menu() {
     local _cols_m
     _cols_m=$(tput cols 2>/dev/null)
     [[ ! "$_cols_m" =~ ^[0-9]+$ ]] || [[ "$_cols_m" -lt 30 ]] && _cols_m=53
-    [[ "$_cols_m" -gt 80 ]] && _cols_m=80
+    [[ "$_cols_m" -gt 74 ]] && _cols_m=74
     local _inner_m=$(( _cols_m - 2 ))
     local _border_m
     printf -v _border_m '%*s' "$_inner_m" ''
@@ -1069,7 +1069,7 @@ general_query() {
             clear
             local _cols_r; _cols_r=$(tput cols 2>/dev/null)
             [[ ! "$_cols_r" =~ ^[0-9]+$ ]] && _cols_r=53
-            [[ "$_cols_r" -gt 80 ]] && _cols_r=80
+            [[ "$_cols_r" -gt 74 ]] && _cols_r=74
             local _lines_r; _lines_r=$(tput lines 2>/dev/null)
             [[ ! "$_lines_r" =~ ^[0-9]+$ ]] || [[ "$_lines_r" -lt 15 ]] && _lines_r=24
             local items_per_page=$(( _lines_r - 12 ))
@@ -1082,7 +1082,7 @@ general_query() {
             printf -v _left '%*s' "$_side" ''; _left="${_left// /═}"
             printf -v _right '%*s' "$_side_r" ''; _right="${_right// /═}"
             echo -e "\n${GREEN2}${_left}${_label}${_right}${NC}"
-            printf "${YELLOW}%-3s | %-16s | %-16s | %-10s | %-4s | %-10s${NC}\n" " No " "GROUP" "REPEATER" "CALLSIGN" "MODE" "FREQUENCY"
+            printf "${YELLOW}%-3s | %-16s | %-16s | %-8s | %-4s | %-10s${NC}\n" " No " "GROUP" "REPEATER" "CALLSIGN" "MODE" "FREQUENCY"
             separator "$GREEN2"
 
             local start=$(( (page - 1) * items_per_page ))
@@ -1094,7 +1094,7 @@ general_query() {
             for ((i=start; i<end; i++)); do
                 IFS=';' read -r gn nm rc md fr lorig <<< "${results_data[$i]}"
                 line_map[$((screen_counter+start))]="$lorig"
-                printf " %-3s | %-16.16s | %-16.16s | %-10.10s | %-4.4s | %-10.10s\n" \
+                printf " %-3s | %-16.16s | %-16.16s | %-8.8s | %-4.4s | %-10.10s\n" \
                     "$((screen_counter+start))" "$gn" "$nm" "$rc" "$md" "$fr"
                 ((screen_counter++))
             done
@@ -1182,7 +1182,7 @@ list_repeaters_from_group() {
         clear
         show_header "LISTING REPEATERS FROM GROUP $group_num — $group_name"
 
-        printf "${YELLOW}%-3s | %-16s | %-16s | %-10s | %-4s | %-10s${NC}\n" " No " "GROUP" "REPEATER" "CALLSIGN" "MODE" "FREQUENCY"
+        printf "${YELLOW}%-3s | %-16s | %-16s | %-8s | %-4s | %-10s${NC}\n" " No " "GROUP" "REPEATER" "CALLSIGN" "MODE" "FREQUENCY"
         separator "$GREEN2"
 
         local raw_data=()
@@ -1190,7 +1190,7 @@ list_repeaters_from_group() {
         while IFS=';' read -r group_no group_name name sub_name rpt_call gw_call freq dup offset mode tone rpt_tone rpt1use position lat lon utc_offset || [ -n "$group_no" ]; do
             if [ "$csv_line" -eq 1 ]; then ((csv_line++)); continue; fi
             if [ "$group_no" == "$group_num" ]; then
-                raw_data+=("$(printf '%-16s|%-16s|%-10s|%-4s|%-10s|%s' "$group_name" "$name" "$rpt_call" "$mode" "$freq" "$csv_line")")
+                raw_data+=("$(printf '%-16s|%-16s|%-8s|%-4s|%-10s|%s' "$group_name" "$name" "$rpt_call" "$mode" "$freq" "$csv_line")")
             fi
             ((csv_line++))
         done < "$CSV_FILE"
@@ -1227,7 +1227,7 @@ list_repeaters_from_group() {
         for ((i=start; i<end; i++)); do
             IFS=';' read -r gn nm rc md fr <<< "${final_data[$i]}"
             line_map[$((screen_counter+start))]="${origin_lines[$i]}"
-            printf " %-3s | %-16.16s | %-16.16s | %-10.10s | %-4.4s | %-10.10s\n" \
+            printf " %-3s | %-16.16s | %-16.16s | %-8.8s | %-4.4s | %-10.10s\n" \
                 "$((screen_counter+start))" "$gn" "$nm" "$rc" "$md" "$fr"
             ((screen_counter++))
         done
