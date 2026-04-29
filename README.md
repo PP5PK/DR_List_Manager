@@ -258,24 +258,7 @@ flowchart TD
 
 ### Main Menu
 
-```
-╔══════════════════════════════════════════════════════╗
-║                             REPEATER MANAGER - D-Star / FM                               ║
-║                                     ICOM DR LIST                                v3.8_en  ║
-╚══════════════════════════════════════════════════════╝
-    File     : Repeater_list.csv
-    Records  : 142
-    Groups   : 27
-
-1. Edit Repeaters  (List / Edit / Delete)
-2. Add Repeater
-3. Edit Groups  (Rename / Remove)
-4. General Query  (Advanced Filters)
-5. Manage Database
-X. Exit System
-═══════════════════════════════════════════════════════
-Choose an option:
-```
+![Repeater_Manager](https://cloud.dvbr.net/images/DR_List/Repeater_Manager.png)
 
 ---
 
@@ -283,18 +266,7 @@ Choose an option:
 
 Displays all groups with their station count. Selecting a group opens a paginated list of its repeaters, sorted alphabetically by name.
 
-```
-╔══════════════════════════════════════════════════════╗
-║                              LIST OF REGISTERED GROUPS                                   ║
-╚══════════════════════════════════════════════════════╝
-
- [01] - Acre                     ( 01 stations registered )
- [02] - Alagoas                  ( 01 stations registered )
- [04] - Santa Catarina           ( 18 stations registered )
- ...
-
->> Type the group number (or [X] Main Menu):
-```
+![Group_List](https://cloud.dvbr.net/images/DR_List/Group_List.png)
 
 **Inside a group — repeater list:**
 
@@ -316,32 +288,7 @@ Page 1 of 2 (18 items)
 
 **Detail view of a selected repeater:**
 
-```
-╔══════════════════════════════════════════════════════╗
-║                                  REPEATER DETAILS                                        ║
-╚══════════════════════════════════════════════════════╝
-
- 1.  Group Number:                 4
- 2.  Group Name:                   Santa Catarina
- 3.  Repeater Name:                Blumenau
- 4.  Sub Name:                     Sul
- 5.  Callsign:                     PP5BLU B
- 6.  Gateway Callsign:             PP5BLU G
- 7.  Frequency:                    439,950000
- 8.  Duplex (DUP):                 DUP-
- 9.  Freq. Offset:                 5,000000
- 10. Operation Mode:               DV
- 11. TONE Type:                    OFF
- 12. Repeater Tone:                88,5Hz
- 13. USE (From):                   YES
- 14. Location:                     Approximate
- 15. Latitude:                     -26,919444
- 16. Longitude:                    -49,065556
- 17. UTC Offset:                   -3:00
-
-[E] Edit | [D] Delete | [B] Back | [X] Main Menu
->> Option:
-```
+![Repeater_Detail](https://cloud.dvbr.net/images/DR_List/Repeater_Detail.png)
 
 ---
 
@@ -351,63 +298,11 @@ A guided sequential form that collects all 17 fields for a new entry. The group 
 
 **Field entry flow for an analog repeater.**
 
-```
->> Group No (1-50) [X to cancel]: 28
-  >> Associated Group Name: HotSpots
->> Name [X to cancel]: Rep. FM Example
->> Sub Name [X to cancel]: Sub
-  Mode: 1) DV   2) FM   3) FM-N
->> Choose (1-3) [Enter keeps: FM | X to cancel]: 2
-  Dup: 1) OFF   2) DUP-   3) DUP+
->> Choose (1-3) [Enter keeps: OFF | X to cancel]: 2
->> Offset (ex: 5,000000) [Enter keeps: 0,000000 | X to cancel]: 5,000000
->> Frequency (ex: 439,975000) [X to cancel]: 439,800000
->> Repeater Call Sign (Optional) [X to cancel]: AB1CDE
-  TONE: 1) OFF   2) TONE   3) TSQL
->> Choose (1-3) [Enter keeps: OFF | X to cancel]: 3
-
-  --- STANDARD ICOM CTCSS TONE TABLE ---
-   1) 67,0     2) 69,3     3) 71,9     4) 74,4     5) 77,0     6) 79,7     7) 82,5
-   8) 85,4     9) 88,5    10) 91,5    11) 94,8    12) 97,4    13) 100,0   14) 103,5
-  15) 107,2   16) 110,9   17) 114,8   18) 118,8   19) 123,0   20) 127,3   21) 131,8
-  22) 136,5   23) 141,3   24) 146,2   25) 151,4   26) 156,7   27) 159,8   28) 162,2
-  29) 165,5   30) 167,9   31) 171,3   32) 173,8   33) 177,3   34) 179,9   35) 183,5
-  36) 186,2   37) 189,9   38) 192,8   39) 196,6   40) 199,5   41) 203,5   42) 206,5
-  43) 210,7   44) 218,1   45) 225,7   46) 229,1   47) 233,6   48) 241,8   49) 250,3
-  50) 254,1
->> Choose Repeater Tone (1-50) [X to cancel]: 30
-  RPT1USE: 1) YES   2) NO
->> Choose (1-2) [Enter keeps: YES | X to cancel]: 1
-  Position: 1) None   2) Approximate   3) Exact
->> Choose (1-3) [Enter keeps: None | X to cancel]: 3
->> Latitude (ex: -26,149167) [Enter keeps: 0,000000 | X to cancel]: -26,149167
->> Longitude (ex: -49,812167) [Enter keeps: 0,000000 | X to cancel]: -49,812167
->> UTC Offset (ex: -3:00) [Enter keeps: -3:00 | X to cancel]:-3:00
-```
+![Add_FM_Repeater](https://cloud.dvbr.net/images/DR_List/Add_FM_Repeater.png)
 
 **Field entry flow for a digital repeater.**
 
-```
->> Group No (1-50) [X to cancel]: 28
-  >> Associated Group Name: HotSpots
->> Name [X to cancel]: Rep. DV Example
->> Sub Name [X to cancel]: Sub
-  Mode: 1) DV   2) FM   3) FM-N
->> Choose (1-3) [Enter keeps: FM | X to cancel]: 1
-  Dup: 1) OFF   2) DUP-   3) DUP+
->> Choose (1-3) [Enter keeps: OFF | X to cancel]: 3
->> Offset (ex: 5,000000) [Enter keeps: 0,000000 | X to cancel]: 5,000000
->> Frequency (ex: 439,975000) [X to cancel]: 434,900000
->> Repeater Call Sign [X to cancel]: PP5PK  C
->> Gateway Call Sign [Enter keeps: PP5PK  G | X to cancel]:
-  RPT1USE: 1) YES   2) NO
->> Choose (1-2) [Enter keeps: YES | X to cancel]: 1
-  Position: 1) None   2) Approximate   3) Exact
->> Choose (1-3) [Enter keeps: None | X to cancel]: 3
->> Latitude (ex: -26,149167) [Enter keeps: 0,000000 | X to cancel]: -26,149167
->> Longitude (ex: -49,812167) [Enter keeps: 0,000000 | X to cancel]: -49,812167
->> UTC Offset (ex: -3:00) [Enter keeps: -3:00 | X to cancel]: -3:00
-```
+![Add_DV_Repeater](https://cloud.dvbr.net/images/DR_List/Add_DV_Repeater.png)
 
 > The same form is reused for **editing** an existing repeater (reached from Option 1 → detail view → `[E]`), pre-populated with all current values.
 
@@ -415,15 +310,7 @@ A guided sequential form that collects all 17 fields for a new entry. The group 
 
 ### Option 3 — Edit Groups
 
-```
-╔══════════════════════════════════════════════════════╗
-║                                     EDIT GROUPS                                          ║
-╚══════════════════════════════════════════════════════╝
-
-1. Rename Group
-2. Remove Group  (Move linked repeaters)
-X. Back
-```
+![Edit_Groups](https://cloud.dvbr.net/images/DR_List/Edit_Groups.png)
 
 - **Rename** — updates the group name across every repeater entry that belongs to that group.
 - **Remove** — offers two options: move all repeaters in the group to another group (existing or new), or delete all of them permanently. Both paths create an automatic `.backup` file before modifying the database.
@@ -434,15 +321,7 @@ X. Back
 
 Allows filtering the entire database using up to **3 combined criteria**:
 
-```
-╔══════════════════════════════════════════════════════╗
-║                                    QUERY DATABASE                                        ║
-╚══════════════════════════════════════════════════════╝
-
---- Filter 1 ---
-1) Group    2) Mode    3) RPT1USE    4) Call Sign    5) Frequency
-Choose the field by number (or [Enter] / X to cancel):
-```
+![Query_Database](https://cloud.dvbr.net/images/DR_List/Query_Database.png)
 
 | Filter | Match type | Description |
 |---|---|---|
@@ -454,29 +333,13 @@ Choose the field by number (or [Enter] / X to cancel):
 
 Results are sorted by group name then repeater name, displayed in a paginated table. Selecting an entry number opens the full detail view, from which the entry can also be edited or deleted directly.
 
-```
-[N] Next pg | [P] Prev pg | [S] New Search | [X] Main Menu
-```
+![Nav_Options](https://cloud.dvbr.net/images/DR_List/Navigation_Options.png)
 
 ---
 
 ### Option 5 — Manage Database
 
-```
-╔══════════════════════════════════════════════════════╗
-║                                   MANAGE DATABASE                                        ║
-╚══════════════════════════════════════════════════════╝
-    Currently selected base: Repeater_list.csv
-    CSV standard: Separator [ ; ], Decimal [ , ]
-
-1. Select Base CSV File
-2. Import CSV
-3. Export DR_list.csv  (RptYYYYMMDD_XX.csv)
-4. Validate Database
-5. Delete Database
-6. Clear Database  (Keep header only)
-X. Return
-```
+![Manage_Database](https://cloud.dvbr.net/images/DR_List/Manage_Database.png)
 
 | Option | Description |
 |---|---|
@@ -517,15 +380,7 @@ X. Return
 
 The following 50 standard ICOM tones are accepted (Hz, comma-decimal):
 
-```
- 67,0   69,3   71,9   74,4   77,0   79,7   82,5
- 85,4   88,5   91,5   94,8   97,4  100,0  103,5
-107,2  110,9  114,8  118,8  123,0  127,3  131,8
-136,5  141,3  146,2  151,4  156,7  159,8  162,2
-165,5  167,9  171,3  173,8  177,3  179,9  183,5
-186,2  189,9  192,8  196,6  199,5  203,5  206,5
-210,7  218,1  225,7  229,1  233,6  241,8  250,3  254,1
-```
+![CTCSS_Tones](https://cloud.dvbr.net/images/DR_List/Standard_CTCSS_Tones.png)
 
 ---
 
@@ -561,16 +416,7 @@ The validation engine (shared by both the manual add/edit form and the CSV impor
 
 All significant operations are appended to `dr_manager.log` in the script's working directory:
 
-```
-[2025-04-14 14:32:01] START: System started with base: Repeater_list.csv
-[2025-04-14 14:33:45] ADD: New repeater 'Joinville' added to CSV
-[2025-04-14 14:35:12] EDIT: Repeater 'Blumenau' updated in CSV (line 23)
-[2025-04-14 14:38:00] RENAME_GROUP: Group 4 renamed from 'SC' to 'Santa Catarina'
-[2025-04-14 14:40:00] EXPORT: Base exported as Rpt20250414_01.csv
-[2025-04-14 14:41:15] DELETE_BASE: Database file deleted: old_rpt_list.csv
-[2025-04-14 14:42:30] IMPORT_AUTO_CORRECTION_LINE_5: Group: 01 | Name: Rio Branco | Corrections: Frequency: converted decimal point to comma (146.520000 -> 146,520000). Repeater Tone: added Hz suffix (88,5 -> 88,5Hz).
-[2025-04-14 14:43:45] END: System closed by user
-```
+![Manage_LOG](https://cloud.dvbr.net/images/DR_List/Log_data.png)
 
 Logged event types: `START`, `END`, `ADD`, `EDIT`, `DELETE`, `DELETE_GROUP`, `DELETE_BASE`, `RENAME_GROUP`, `MOVE_GROUP`, `BASE_SELECT`, `IMPORT`, `EXPORT`, `CLEANUP`, `IMPORT_AUTO_CORRECTION_LINE_*`, `IMPORT_VALIDATION_IGNORED`, `IMPORT_VALIDATION_CORRECTED`, `IMPORT_VALIDATION_SUMMARY`.
 
