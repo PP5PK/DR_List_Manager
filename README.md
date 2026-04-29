@@ -270,7 +270,7 @@ Displays all groups with their station count. Selecting a group opens a paginate
 
 **Inside a group — repeater list:**
 
-![Repeaters_List](https://cloud.dvbr.net/images/DR_List/Repeaters_List.png)
+![Repeater_List](https://cloud.dvbr.net/images/DR_List/Repeater_List.png)
 
 **Detail view of a selected repeater:**
 
