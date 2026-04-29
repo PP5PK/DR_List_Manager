@@ -270,21 +270,7 @@ Displays all groups with their station count. Selecting a group opens a paginate
 
 **Inside a group — repeater list:**
 
-```
-╔══════════════════════════════════════════════════════╗
-║                     LISTING REPEATERS FROM GROUP 4 — Santa Catarina                      ║
-╚══════════════════════════════════════════════════════╝
-
- No  | GROUP            | REPEATER         | CALLSIGN   | MODE | FREQUENCY
-════════════════════════════════════════════════════════
- 1   | Santa Catarina   | Blumenau         | PP5BLU B   | DV   | 439,950000
- 2   | Santa Catarina   | Chapeco          | PP5CHP     | FM   | 147,150000
- ...
-
-Page 1 of 2 (18 items)
-[N] Next pg | [P] Prev pg | [B] Back Groups | [X] Main Menu
->> Number to detail (or indicated key):
-```
+![Repeaters_List](https://cloud.dvbr.net/images/DR_List/Repeaters_List.png)
 
 **Detail view of a selected repeater:**
 
