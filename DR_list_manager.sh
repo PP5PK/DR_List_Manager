@@ -158,7 +158,7 @@ read_tone() {
     for ((i = 0; i < ${#VALID_TONES[@]}; i++)); do
         printf "  ${YELLOW2}%2d${NC}) %-6s" "$((i+1))" "${VALID_TONES[$i]}" >&2
         ((col++))
-        if [[ $((col % 7)) -eq 0 ]]; then echo >&2; fi
+        if [[ $((col % 6)) -eq 0 ]]; then echo >&2; fi
     done
     echo >&2
 
