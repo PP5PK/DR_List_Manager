@@ -300,13 +300,9 @@ Clearable fields (Name, Sub Name, and Repeater Call Sign for analog duplex) disp
 
 After all fields are filled, a **review screen** displays the complete record for visual confirmation before saving. The user must confirm with `y` or cancel with `N`.
 
-**Field entry flow for an analog repeater.**
+**Field entry flow for add an Analog and Digital Repeaters.**
 
-![Add_FM_Repeater](https://cloud.dvbr.net/images/DR_List/Add_FM_Repeater_v5.1.png)
-
-**Field entry flow for a digital repeater.**
-
-![Add_DV_Repeater](https://cloud.dvbr.net/images/DR_List/Add_DV_Repeater_v5.1.png)
+![Add_Repeater](https://cloud.dvbr.net/images/DR_List/Add_Repeaters.png)
 
 > The same form is reused for **editing** an existing repeater (reached from Option 1 → detail view → `[E]`), pre-populated with all current values. An intro message reminds the user to press Enter to keep existing values.
 
