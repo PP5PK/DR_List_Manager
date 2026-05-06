@@ -314,7 +314,7 @@ After all fields are filled, a **review screen** displays the complete record fo
 
 ### Option 3 — Edit Groups
 
-![Edit_Groups](https://cloud.dvbr.net/images/DR_List/Edit_Groups_.png)
+![Edit_Groups](https://cloud.dvbr.net/images/DR_List/Edit_Groups.png)
 
 - **Rename** — updates the group name across every repeater entry that belongs to that group.
 - **Remove** — offers two options: move all repeaters in the group to another group (existing or new), or delete all of them permanently. Both paths create an automatic `.backup` file before modifying the database.
@@ -344,7 +344,7 @@ Results are sorted by group name then repeater name, displayed in a paginated ta
 
 ### Option 5 — Manage Database
 
-![Manage_Database](https://cloud.dvbr.net/images/DR_List/Manage_Database_.png)
+![Manage_Database](https://cloud.dvbr.net/images/DR_List/Manage_Database.png)
 
 | Option | Description |
 |---|---|
