@@ -3,7 +3,7 @@
 # ==============================================================================
 # INITIAL SETTINGS AND VARIABLES
 # ==============================================================================
-APP_VERSION="3.8.2"
+APP_VERSION="5.1.0"
 # Default .csv file, whenever the app starts this file is loaded
 CSV_FILE="Repeater_list.csv"
 TEMP_FILE="temp_fixed.csv"
@@ -82,17 +82,28 @@ VALID_TONES=(
 # INTERACTIVE ENGINE 1: TEXT READING AND REGEX (WITH AUTO-UPPERCASE)
 # ==============================================================================
 read_field() {
-    local prompt="$1" regex="$2" error_msg="$3" current_value="$4" max_len="$5"
+    local prompt="$1" regex="$2" error_msg="$3" current_value="$4" max_len="$5" clearable="${6:-}"
 
     while true; do
-        local hint="[X to cancel]"
-        if [[ -n "$current_value" ]]; then hint="[Enter keeps: ${ORANGE}${current_value}${NC} | X to cancel]"; fi
+        local hints=""
+        if [[ -n "$current_value" ]]; then
+            hints="[current: ${ORANGE}${current_value}${NC}]"
+            [[ -n "$clearable" ]] && hints+=" [${GRAY}-=clear${NC}]"
+        fi
+        hints+=" [${GRAY}X=cancel${NC}]"
 
+        printf "  ${YELLOW2}%s${NC}  %b\n" "$prompt" "$hints" >&2
+        printf "  > " >&2
         local input_val
-        echo -en ">> $prompt $hint: " >&2
         read input_val < /dev/tty
 
         if [[ "${input_val,,}" == "x" ]]; then return 1; fi
+
+        # Clear field
+        if [[ "$input_val" == "-" && -n "$clearable" && -n "$current_value" ]]; then
+            echo ""; return 0
+        fi
+
         if [[ -z "$input_val" && -n "$current_value" ]]; then echo "$current_value"; return 0; fi
 
         if [[ "$prompt" == *"Frequency"* || "$prompt" == *"Offset"* || "$prompt" == *"Latitude"* || "$prompt" == *"Longitude"* || "$prompt" == *"Tone"* ]]; then
@@ -128,12 +139,14 @@ read_option() {
             menu_str+="$((i+1))) ${options[$i]}   "
         done
 
-        local hint="[X to cancel]"
-        [[ -n "$default_val" ]] && hint="[Enter keeps: ${ORANGE}${default_val}${NC} | X to cancel]"
+        local hints=""
+        [[ -n "$default_val" ]] && hints="[current: ${ORANGE}${default_val}${NC}]"
+        hints+=" [${GRAY}X=cancel${NC}]"
 
-        echo -e "  $prompt: ${YELLOW2}${menu_str}${NC}" >&2
+        printf "  ${YELLOW2}%s:${NC}  ${CYAN}%s${NC}\n" "$prompt" "$menu_str" >&2
+        printf "  ${YELLOW2}Choose (1-%d)${NC}  %b\n" "${#options[@]}" "$hints" >&2
+        printf "  > " >&2
         local input_val
-        echo -en ">> Choose (1-${#options[@]}) $hint: " >&2
         read input_val < /dev/tty
 
         [[ "${input_val,,}" == "x" ]] && return 1
@@ -163,11 +176,13 @@ read_tone() {
     echo >&2
 
     while true; do
-        local hint="[X to cancel]"
-        [[ -n "$default_val" ]] && hint="[Enter keeps: ${ORANGE}${default_val}${NC} | X to cancel]"
+        local hints=""
+        [[ -n "$default_val" ]] && hints="[current: ${ORANGE}${default_val}${NC}]"
+        hints+=" [${GRAY}X=cancel${NC}]"
 
+        printf "  ${YELLOW2}%s (1-%d)${NC}  %b\n" "$prompt" "${#VALID_TONES[@]}" "$hints" >&2
+        printf "  > " >&2
         local input_val
-        echo -en ">> $prompt (1-${#VALID_TONES[@]}) $hint: " >&2
         read input_val < /dev/tty
 
         [[ "${input_val,,}" == "x" ]] && return 1
@@ -280,12 +295,51 @@ show_menu() {
     echo
     echo -e "1. Edit Repeaters ${GRAY}(List / Edit / Delete)${NC}"
     echo    "2. Add Repeater"
-    echo -e "3. Edit Groups ${GRAY}(Rename / Remove)${NC}"
+    echo -e "3. Edit Groups ${GRAY}(Rename / Remove / Move)${NC}"
     echo -e "4. General Query ${GRAY}(Advanced Filters)${NC}"
     echo    "5. Manage Database"
     echo    "X. Exit System"
     separator "$GREEN2" "═"
     read -p "Choose an option: " option < /dev/tty
+}
+
+# ==============================================================================
+# FUNCTION: DISPLAY FORMATTED ENTRY BOX WITH OPTIONAL FIELD HIGHLIGHT
+# ==============================================================================
+show_entry_box() {
+    local title="$1" color="${2:-$GRAY}" err_fields="${3:-}"
+    shift 3
+    local gn="$1" gname="$2" nm="$3" snm="$4" rc="$5" gc="$6" fq="$7" dp="$8" \
+          of="$9" md="${10}" tn="${11}" rt="${12}" r1="${13}" ps="${14}" la="${15}" lo="${16}" ut="${17}"
+
+    _ebox_line() {
+        local label="$1" value="$2"
+        if [[ "|${err_fields}|" == *"|${label}|"* ]]; then
+            printf "  ${color}│${NC}  %-18s: ${RED}%s${NC}\n" "$label" "$value"
+        else
+            printf "  ${color}│${NC}  %-18s: %s\n" "$label" "$value"
+        fi
+    }
+
+    show_header "${title}"
+    _ebox_line "Group No"       "$gn"
+    _ebox_line "Group Name"     "$gname"
+    _ebox_line "Name"           "$nm"
+    _ebox_line "Sub Name"       "$snm"
+    _ebox_line "Repeater Call"  "$rc"
+    _ebox_line "Gateway Call"   "$gc"
+    _ebox_line "Frequency"      "$fq"
+    _ebox_line "Dup"            "$dp"
+    _ebox_line "Offset"         "$of"
+    _ebox_line "Mode"           "$md"
+    _ebox_line "TONE"           "$tn"
+    _ebox_line "Repeater Tone"  "$rt"
+    _ebox_line "RPT1USE"        "$r1"
+    _ebox_line "Position"       "$ps"
+    _ebox_line "Latitude"       "$la"
+    _ebox_line "Longitude"      "$lo"
+    _ebox_line "UTC Offset"     "$ut"
+    separator "$BLUE_BRIGHT" "═"
 }
 
 # ==============================================================================
@@ -303,10 +357,11 @@ validate_file_engine() {
     local total_data=$((total_lines - 1))
 
     declare -A seen_keys
+    declare -A seen_raw_lines
     declare -A callsigns_modes
     declare -A callsigns_bands
-    while IFS=';' read -r group_no group_name name sub_name rpt_call gw_call freq dup offset mode tone rpt_tone rpt1use position lat lon utc_offset || [ -n "$group_no" ]; do
-        utc_offset=$(echo "$utc_offset" | tr -d '\r')
+    while IFS= read -r raw_line || [ -n "$raw_line" ]; do
+        raw_line="${raw_line//$'\r'/}"
 
         if [ "$line_num" -gt 1 ]; then
             local pct=$(( (line_num - 2) * 100 / total_data ))
@@ -319,9 +374,27 @@ validate_file_engine() {
             ((line_num++)); continue
         fi
 
+        # Field count validation — flag structural issues but parse anyway
+        local field_count structural_error=""
+        field_count=$(awk -F';' '{print NF}' <<< "$raw_line")
+        if [[ "$field_count" -ne 17 ]]; then
+            structural_error="Expected 17 fields, found $field_count. Fields may be misaligned — check raw data below."
+        fi
+
+        # Parse fields from raw line (even if misaligned, so user can see and correct)
+        IFS=';' read -r group_no group_name name sub_name rpt_call gw_call freq dup offset mode tone rpt_tone rpt1use position lat lon utc_offset <<< "$raw_line"
+
         while true; do
             local line_errors=""
             local line_corrections=""
+            local conflict_info=""
+            local error_fields=""
+
+            # If structural error was detected, inject it and mark all fields
+            if [[ -n "$structural_error" ]]; then
+                line_errors+="  - Structural Error: $structural_error\n"
+                error_fields+="|Group No|Group Name|Name|Sub Name|Repeater Call|Gateway Call|Frequency|Dup|Offset|Mode|TONE|Repeater Tone|RPT1USE|Position|Latitude|Longitude|UTC Offset"
+            fi
 
             # Convert periods to commas - do this first!
             if [[ "$freq" == *.* ]]; then 
@@ -374,9 +447,16 @@ validate_file_engine() {
                 fi
             fi
 
-            local key_dup="${group_no}_${name}_${freq}"
+            local key_dup="${group_no}_${name}_${freq}_${rpt_call}_${mode}"
             if [[ -n "${seen_keys[$key_dup]}" && "${seen_keys[$key_dup]}" != "$line_num" ]]; then
-                line_errors+="  - Duplicate Entry: identical to line ${seen_keys[$key_dup]}.\n"
+                local dup_ln="${seen_keys[$key_dup]}"
+                line_errors+="  - Duplicate Entry: identical record found at line $dup_ln (same Group, Name, Freq, Call, Mode).\n"
+                error_fields+="|Group No|Name|Frequency|Repeater Call|Mode"
+                local dup_raw="${seen_raw_lines[$dup_ln]}"
+                if [[ -n "$dup_raw" ]]; then
+                    IFS=';' read -ra dup_f <<< "$dup_raw"
+                    conflict_info+="$(show_entry_box "LINE $dup_ln (Conflicting Entry)" "$YELLOW" "" "${dup_f[@]}")\n"
+                fi
             fi
 
             # Extract Current Band - After converting from period to comma
@@ -387,25 +467,33 @@ validate_file_engine() {
             if [[ "$freq_int" =~ ^[0-9]+$ ]]; then
                 if [[ 10#$freq_int -ge 144000000 && 10#$freq_int -le 148000000 ]]; then current_band="VHF"
                 elif [[ 10#$freq_int -ge 430000000 && 10#$freq_int -le 450000000 ]]; then current_band="UHF"
-                else line_errors+="  - Frequency: Out of allowed range (144-148 / 430-450 MHz).\n"; fi
+                else line_errors+="  - Frequency: Out of allowed range (144-148 / 430-450 MHz).\n"; error_fields+="|Frequency"; fi
             else
                 line_errors+="  - Frequency: Invalid format ($freq).\n"
+                error_fields+="|Frequency"
             fi
 
-            # Hybrid Repeater Callsign Validation (DV vs Cross-Band Analog)
+            # Callsign Conflict Validation (DV vs Analog per Band)
             if [[ -n "$rpt_call" ]]; then
-                local conflict_res=""
+                local conflict_res="" conflict_raw_line="" conf_ln=""
 
                 # Check 1: Main CSV (if we are importing an external)
                 if [[ "$target_file" != "$CSV_FILE" && -f "$CSV_FILE" ]]; then
-                    conflict_res=$(awk -F';' -v call="$rpt_call" -v mode="$mode" -v band="$current_band" '
-                    $5==call {
-                        if ($10 == "DV" || mode == "DV") { print "DV"; exit }
+                    local awk_result
+                    awk_result=$(awk -F';' -v call="$rpt_call" -v mode="$mode" -v band="$current_band" '
+                    NR>1 && $5==call {
+                        if ($10 == "DV" || mode == "DV") { print "DV|" NR "|" $0; exit }
                         f=$7; gsub(",", "", f); b="";
                         if (f >= 144000000 && f <= 148000000) b="VHF";
                         else if (f >= 430000000 && f <= 450000000) b="UHF";
-                        if (b == band) { print "BAND"; exit }
+                        if (b == band) { print "BAND|" NR "|" $0; exit }
                     }' "$CSV_FILE")
+                    if [[ -n "$awk_result" ]]; then
+                        conflict_res="${awk_result%%|*}"
+                        local tmp="${awk_result#*|}"
+                        conf_ln="${tmp%%|*}"
+                        conflict_raw_line="${tmp#*|}"
+                    fi
                 fi
 
                 # Check 2: Memory of the file being processed
@@ -420,60 +508,80 @@ validate_file_engine() {
                 fi
 
                 if [[ "$conflict_res" == "DV" ]]; then
-                    line_errors+="  - Callsign '$rpt_call' conflicts with DV rule (total exclusivity).\n"
+                    line_errors+="  - Callsign Conflict: '$rpt_call' — DV callsigns require total exclusivity.\n"
+                    error_fields+="|Repeater Call|Mode"
                 elif [[ "$conflict_res" == "BAND" ]]; then
-                    line_errors+="  - Callsign '$rpt_call' already has a repeater on band $current_band.\n"
+                    line_errors+="  - Callsign Conflict: '$rpt_call' — same callsign already has an analog repeater on the $current_band band.\n"
+                    error_fields+="|Repeater Call|Frequency"
+                fi
+
+                if [[ -n "$conflict_res" && -n "$conflict_raw_line" ]]; then
+                    IFS=';' read -ra cf_f <<< "$conflict_raw_line"
+                    conflict_info+="$(show_entry_box "LINE ${conf_ln:-?} IN BASE (Conflicting Entry)" "$YELLOW" "" "${cf_f[@]}")\n"
                 fi
             fi
 
-            if ! [[ "$group_no" =~ ^([1-9]|[1-4][0-9]|50)$ ]]; then line_errors+="  - Group No: Invalid ($group_no).\n"; fi
-            if [[ ${#group_name} -gt 16 ]] || ! [[ "$group_name" =~ ^[[:print:]]*$ ]]; then line_errors+="  - Group Name: Invalid or too long.\n"; fi
-            if [[ ${#name} -gt 16 ]] || ! [[ "$name" =~ ^[[:print:]]*$ ]]; then line_errors+="  - Name: Invalid or too long.\n"; fi
-            if [[ ${#sub_name} -gt 8 ]] || ! [[ "$sub_name" =~ ^[[:print:]]*$ ]]; then line_errors+="  - Sub Name: Invalid or too long.\n"; fi
-            if ! [[ "$dup" =~ ^(OFF|DUP\+|DUP\-)$ ]]; then line_errors+="  - Dup: Invalid ($dup).\n"; fi
-            if ! [[ "$mode" =~ ^(DV|FM|FM-N)$ ]]; then line_errors+="  - Mode: Invalid ($mode).\n"; fi
+            if ! [[ "$group_no" =~ ^([1-9]|[1-4][0-9]|50)$ ]]; then line_errors+="  - Group No: Invalid ($group_no).\n"; error_fields+="|Group No"; fi
+            if [[ ${#group_name} -gt 16 ]] || ! [[ "$group_name" =~ ^[[:print:]]*$ ]]; then line_errors+="  - Group Name: Invalid or too long.\n"; error_fields+="|Group Name"; fi
+            if [[ ${#name} -gt 16 ]] || ! [[ "$name" =~ ^[[:print:]]*$ ]]; then line_errors+="  - Name: Invalid or too long.\n"; error_fields+="|Name"; fi
+            if [[ ${#sub_name} -gt 8 ]] || ! [[ "$sub_name" =~ ^[[:print:]]*$ ]]; then line_errors+="  - Sub Name: Invalid or too long.\n"; error_fields+="|Sub Name"; fi
+            if ! [[ "$dup" =~ ^(OFF|DUP\+|DUP\-)$ ]]; then line_errors+="  - Dup: Invalid ($dup).\n"; error_fields+="|Dup"; fi
+            if ! [[ "$mode" =~ ^(DV|FM|FM-N)$ ]]; then line_errors+="  - Mode: Invalid ($mode).\n"; error_fields+="|Mode"; fi
 
             if [[ "$dup" == "DUP+" || "$dup" == "DUP-" ]]; then
                 if [[ "$mode" == "DV" ]]; then
-                    if [[ -z "$rpt_call" ]] || [[ ${#rpt_call} -gt 8 ]] || ! [[ "$rpt_call" =~ ^.{7}[A-Z]$ ]]; then line_errors+="  - Repeater Call: Invalid for DV.\n"; fi
-                    if [[ -z "$gw_call" ]] || ! [[ "$gw_call" =~ ^.{7}G$ ]] || [[ "${rpt_call:0:7}" != "${gw_call:0:7}" ]]; then line_errors+="  - Gateway Call: Invalid for DV.\n"; fi
+                    if [[ -z "$rpt_call" ]] || [[ ${#rpt_call} -gt 8 ]] || ! [[ "$rpt_call" =~ ^.{7}[A-Z]$ ]]; then line_errors+="  - Repeater Call: Invalid for DV.\n"; error_fields+="|Repeater Call"; fi
+                    if [[ -z "$gw_call" ]] || ! [[ "$gw_call" =~ ^.{7}G$ ]] || [[ "${rpt_call:0:7}" != "${gw_call:0:7}" ]]; then line_errors+="  - Gateway Call: Invalid for DV.\n"; error_fields+="|Gateway Call"; fi
                 else
-                    if [[ -n "$rpt_call" && ${#rpt_call} -gt 8 ]]; then line_errors+="  - Repeater Call: Exceeds 8 chars.\n"; fi
-                    if [[ -n "$gw_call" ]]; then line_errors+="  - Gateway Call: Must be empty for FM/FM-N.\n"; fi
+                    if [[ -n "$rpt_call" && ${#rpt_call} -gt 8 ]]; then line_errors+="  - Repeater Call: Exceeds 8 chars.\n"; error_fields+="|Repeater Call"; fi
+                    if [[ -n "$gw_call" ]]; then line_errors+="  - Gateway Call: Must be empty for FM/FM-N.\n"; error_fields+="|Gateway Call"; fi
                 fi
             else
-                if [[ -n "$rpt_call" ]]; then line_errors+="  - Repeater Call: Must be empty for Simplex.\n"; fi
-                if [[ -n "$gw_call" ]]; then line_errors+="  - Gateway Call: Must be empty for Simplex.\n"; fi
+                if [[ -n "$rpt_call" ]]; then line_errors+="  - Repeater Call: Must be empty for Simplex.\n"; error_fields+="|Repeater Call"; fi
+                if [[ -n "$gw_call" ]]; then line_errors+="  - Gateway Call: Must be empty for Simplex.\n"; error_fields+="|Gateway Call"; fi
             fi
 
             if [[ "$dup" == "DUP+" || "$dup" == "DUP-" ]]; then
-                if ! [[ "$offset" =~ ^[0-9],[0-9]{6}$ ]]; then line_errors+="  - Offset: Invalid format ($offset).\n"; fi
+                if ! [[ "$offset" =~ ^[0-9],[0-9]{6}$ ]]; then line_errors+="  - Offset: Invalid format ($offset).\n"; error_fields+="|Offset"; fi
             fi
 
             if [[ "$mode" == "FM" || "$mode" == "FM-N" ]]; then
-                if ! [[ "$tone" =~ ^(OFF|TONE|TSQL)$ ]]; then line_errors+="  - TONE: Invalid ($tone).\n"; fi
+                if ! [[ "$tone" =~ ^(OFF|TONE|TSQL)$ ]]; then line_errors+="  - TONE: Invalid ($tone).\n"; error_fields+="|TONE"; fi
                 if [[ -n "$rpt_tone" ]]; then
                     local clean_tone
                     clean_tone=$(echo "$rpt_tone" | sed 's/Hz//i')
                     local tone_valid=false
                     for t in "${VALID_TONES[@]}"; do if [[ "$t" == "$clean_tone" ]]; then tone_valid=true; break; fi; done
-                    if [[ "$tone_valid" == false ]]; then line_errors+="  - Repeater Tone: Outside Icom standard ($rpt_tone).\n"; fi
+                    if [[ "$tone_valid" == false ]]; then line_errors+="  - Repeater Tone: Outside Icom standard ($rpt_tone).\n"; error_fields+="|Repeater Tone"; fi
                 else
                     line_errors+="  - Repeater Tone: Cannot be empty in FM/FM-N.\n"
+                    error_fields+="|Repeater Tone"
                 fi
             elif [[ "$mode" == "DV" ]]; then
-                if [[ "$tone" != "OFF" ]]; then line_errors+="  - TONE: Must be OFF for DV.\n"; fi
-                if [[ "$rpt_tone" != "88,5Hz" ]]; then line_errors+="  - Repeater Tone: Must be 88,5Hz for DV.\n"; fi
+                if [[ "$tone" != "OFF" ]]; then line_errors+="  - TONE: Must be OFF for DV.\n"; error_fields+="|TONE"; fi
+                if [[ "$rpt_tone" != "88,5Hz" ]]; then line_errors+="  - Repeater Tone: Must be 88,5Hz for DV.\n"; error_fields+="|Repeater Tone"; fi
             fi
 
-            if ! [[ "$rpt1use" =~ ^(YES|NO)$ ]]; then line_errors+="  - RPT1USE: Invalid.\n"; fi
-            if ! [[ "$position" =~ ^(None|Approximate|Exact)$ ]]; then line_errors+="  - Position: Invalid.\n"; fi
-            if ! [[ "$lat" =~ ^-?[0-9]{1,2},[0-9]{6}$ ]]; then line_errors+="  - Latitude: Invalid.\n"; fi
-            if ! [[ "$lon" =~ ^-?[0-9]{1,3},[0-9]{6}$ ]]; then line_errors+="  - Longitude: Invalid.\n"; fi
-            if ! [[ "$utc_offset" =~ ^([+-]?[0-9]{1,2}:[0-9]{2}|--:--)$ ]]; then line_errors+="  - UTC Offset: Invalid.\n"; fi
+            if ! [[ "$rpt1use" =~ ^(YES|NO)$ ]]; then line_errors+="  - RPT1USE: Invalid.\n"; error_fields+="|RPT1USE"; fi
+            if ! [[ "$position" =~ ^(None|Approximate|Exact)$ ]]; then line_errors+="  - Position: Invalid.\n"; error_fields+="|Position"; fi
+            if ! [[ "$lat" =~ ^-?[0-9]{1,2},[0-9]{6}$ ]]; then line_errors+="  - Latitude: Invalid.\n"; error_fields+="|Latitude"; fi
+            if ! [[ "$lon" =~ ^-?[0-9]{1,3},[0-9]{6}$ ]]; then line_errors+="  - Longitude: Invalid.\n"; error_fields+="|Longitude"; fi
+            if ! [[ "$utc_offset" =~ ^([+-]?([0-9]|1[0-3]):[0-5][0-9]|[+-]?14:00|--:--)$ ]]; then line_errors+="  - UTC Offset: Invalid.\n"; error_fields+="|UTC Offset"; fi
 
             if [[ -n "$line_errors" ]]; then
-                echo -e "\n${RED}⚠ Error(s) found at Line $line_num (${name}):${NC}"
+                echo -e "\n${RED}⚠ Error(s) found at Line $line_num:${NC}"
+                show_entry_box "LINE $line_num (Entry with errors)" "$RED" "$error_fields" \
+                    "$group_no" "$group_name" "$name" "$sub_name" "$rpt_call" "$gw_call" \
+                    "$freq" "$dup" "$offset" "$mode" "$tone" "$rpt_tone" \
+                    "$rpt1use" "$position" "$lat" "$lon" "$utc_offset"
+                if [[ -n "$conflict_info" ]]; then
+                    printf '%b' "$conflict_info"
+                fi
+                if [[ -n "$structural_error" ]]; then
+                    echo -e "  ${GRAY}Raw data from CSV:${NC}"
+                    echo -e "  ${ORANGE}$raw_line${NC}"
+                fi
+                echo -e "${RED}  Problems found:${NC}"
                 printf '%b\n' "$line_errors"
 
                 local error_action
@@ -495,8 +603,8 @@ validate_file_engine() {
 
                     group_no=$(read_field "Group No (1-50)" "^([1-9]|[1-4][0-9]|50)$" "1-50" "$group_no" "") || return 1
                     group_name=$(read_field "Group Name" "" "" "$group_name" 16) || return 1
-                    name=$(read_field "Name" "" "" "$name" 16) || return 1
-                    sub_name=$(read_field "Sub Name" "" "" "$sub_name" 8) || return 1
+                    name=$(read_field "Name" "" "" "$name" 16 "clear") || return 1
+                    sub_name=$(read_field "Sub Name (optional)" "" "" "$sub_name" 8 "clear") || return 1
                     mode=$(read_option "Mode" "$mode" "DV" "FM" "FM-N") || return 1
                     dup=$(read_option "Dup" "$dup" "OFF" "DUP-" "DUP+") || return 1
 
@@ -514,7 +622,7 @@ validate_file_engine() {
                     while true; do
                         if [[ "$dup" != "OFF" ]]; then
                             if [[ "$mode" == "DV" ]]; then rpt_call=$(read_field "Repeater Call Sign" "^.{7}[A-Z]$" "Requires 8 chars, last A-Z" "$rpt_call" 8) || return 1
-                            else rpt_call=$(read_field "Repeater Call Sign (Optional)" "" "" "$rpt_call" 8) || return 1; fi
+                            else rpt_call=$(read_field "Repeater Call Sign (optional)" "" "" "$rpt_call" 8 "clear") || return 1; fi
                         else rpt_call=""; fi
 
                         if [[ -n "$rpt_call" ]]; then
@@ -570,12 +678,14 @@ validate_file_engine() {
                         lon=$(read_field "Longitude" "^-?[0-9]{1,3},[0-9]{6}$" "Format -000,000000" "$lon" "") || return 1
                     else lat="0,000000"; lon="0,000000"; fi
 
-                    utc_offset=$(read_field "UTC Offset" "^([+-]?[0-9]{1,2}:[0-9]{2}|--:--)$" "-3:00 or --:--" "$utc_offset" "") || return 1
+                    utc_offset=$(read_field "UTC Offset" "^([+-]?([0-9]|1[0-3]):[0-5][0-9]|[+-]?14:00|--:--)$" "-3:00 or --:--" "$utc_offset" "") || return 1
                     log_operation "IMPORT_VALIDATION_CORRECTED" "Line $line_num manually corrected (Group: $group_no | Name: $name)"
+                    structural_error=""
                     continue
                 fi
             else
                 seen_keys[$key_dup]=$line_num
+                seen_raw_lines[$line_num]="$group_no;$group_name;$name;$sub_name;$rpt_call;$gw_call;$freq;$dup;$offset;$mode;$tone;$rpt_tone;$rpt1use;$position;$lat;$lon;$utc_offset"
 
                 if [[ -n "$rpt_call" ]]; then
                     callsigns_modes[$rpt_call]="$mode"
@@ -771,8 +881,9 @@ manage_base_menu() {
     echo    "2. Import CSV"
     echo -e "3. Export DR_list.csv ${GRAY}(RptYYYYMMDD_XX.csv)${NC}"
     echo    "4. Validate Database"
-    echo    "5. Delete Database"
-    echo -e "6. Clear Database ${GRAY}(Keep header only)${NC}"
+    echo    "5. Create New Database"
+    echo    "6. Delete Database"
+    echo -e "7. Clear Database ${GRAY}(Keep header only)${NC}"
     echo    "X. Return"
     separator "$GREEN2"
     read -p ">> Option: " sub_opt < /dev/tty
@@ -788,8 +899,9 @@ manage_base_menu() {
             fi
             validate_database
             ;;
-        5) delete_base ;;
-        6)
+        5) create_new_base ;;
+        6) delete_base ;;
+        7)
             if [ ! -f "$CSV_FILE" ]; then
                 echo -e "${RED}Error: The file '$CSV_FILE' was not found.${NC}"
                 sleep 2; return
@@ -798,6 +910,51 @@ manage_base_menu() {
             ;;
         *) return ;;
     esac
+}
+
+create_new_base() {
+    echo ""
+    show_header "CREATE NEW DATABASE"
+    echo -e "  ${GRAY}The new file will be created with the standard CSV header.${NC}"
+    echo -e "  ${GRAY}File name must end with .csv${NC}\n"
+
+    local new_name
+    while true; do
+        read -p ">> Enter the new file name (or X to cancel): " new_name < /dev/tty
+        [[ "${new_name,,}" == "x" ]] && { echo -e "${CYAN}Operation cancelled.${NC}"; sleep 1; return; }
+
+        if [[ -z "$new_name" ]]; then
+            echo -e "  ${RED}Error: File name cannot be empty.${NC}"
+            continue
+        fi
+
+        # Add .csv extension if not present
+        [[ "$new_name" != *.csv ]] && new_name="${new_name}.csv"
+
+        # Sanitize: only allow alphanumeric, dash, underscore, dot
+        if ! [[ "$new_name" =~ ^[a-zA-Z0-9._-]+\.csv$ ]]; then
+            echo -e "  ${RED}Error: File name contains invalid characters. Use only letters, numbers, dash and underscore.${NC}"
+            continue
+        fi
+
+        if [[ -f "$new_name" ]]; then
+            echo -e "  ${RED}Error: File '$new_name' already exists. Choose a different name.${NC}"
+            continue
+        fi
+
+        break
+    done
+
+    echo "Group No;Group Name;Name;Sub Name;Repeater Call Sign;Gateway Call Sign;Frequency;Dup;Offset;Mode;TONE;Repeater Tone;RPT1USE;Position;Latitude;Longitude;UTC Offset" > "$new_name"
+
+    if [[ -f "$new_name" ]]; then
+        CSV_FILE="$new_name"
+        log_operation "CREATE_BASE" "New database created: $new_name"
+        echo -e "${GREEN2}Database '${ORANGE}$new_name${GREEN2}' created and selected as active base.${NC}"
+    else
+        echo -e "${RED}Error: Failed to create file. Check disk space and permissions.${NC}"
+    fi
+    sleep 2
 }
 
 validate_database() {
@@ -1338,8 +1495,10 @@ repeater_form() {
     if [[ "$action" == "edit" ]]; then
         IFS=';' read -r group_no group_name name sub_name rpt_call gw_call freq dup offset mode tone rpt_tone rpt1use position lat lon utc_offset <<< "$old_data"
         show_header "EDITING REPEATER: $name"
+        printf "${GRAY}  Press Enter on a [current:] field to keep its value.${NC}\n\n"
     else
         show_header "ADDING NEW REPEATER"
+        printf "${GRAY}  Fill in all required fields.${NC}\n\n"
         dup="OFF"; offset="0,000000"; mode="FM"; tone="OFF"; rpt_tone=""; rpt1use="YES"
         position="None"; lat="0,000000"; lon="0,000000"; utc_offset="-3:00"
     fi
@@ -1367,8 +1526,8 @@ repeater_form() {
         group_name=$(read_field "New Group Name" "" "" "$group_name" 16) || return
     fi
 
-    name=$(read_field "Name" "" "" "$name" 16) || return
-    sub_name=$(read_field "Sub Name" "" "" "$sub_name" 8) || return
+    name=$(read_field "Name" "" "" "$name" 16 "clear") || return
+    sub_name=$(read_field "Sub Name (optional)" "" "" "$sub_name" 8 "clear") || return
 
     mode=$(read_option "Mode" "$mode" "DV" "FM" "FM-N") || return
     dup=$(read_option "Dup" "$dup" "OFF" "DUP-" "DUP+") || return
@@ -1396,7 +1555,7 @@ repeater_form() {
             if [[ "$mode" == "DV" ]]; then
                 rpt_call=$(read_field "Repeater Call Sign" "^.{7}[A-Z]$" "DV requires 8 positions, last A-Z." "$rpt_call" 8) || return
             else
-                rpt_call=$(read_field "Repeater Call Sign (Optional)" "" "" "$rpt_call" 8) || return
+                rpt_call=$(read_field "Repeater Call Sign (optional)" "" "" "$rpt_call" 8 "clear") || return
             fi
         else
             rpt_call=""
@@ -1450,22 +1609,38 @@ repeater_form() {
         lon=$(read_field "Longitude (ex: -49,812167)" "^-?[0-9]{1,3},[0-9]{6}$" "Format -000,000000" "$lon" "") || return
     else lat="0,000000"; lon="0,000000"; fi
 
-    utc_offset=$(read_field "UTC Offset (ex: -3:00)" "^([+-]?[0-9]{1,2}:[0-9]{2}|--:--)$" "Format -3:00 or --:--" "$utc_offset" "") || return
+    utc_offset=$(read_field "UTC Offset (ex: -3:00)" "^([+-]?([0-9]|1[0-3]):[0-5][0-9]|[+-]?14:00|--:--)$" "Format -3:00 or --:--" "$utc_offset" "") || return
 
     local new_line="$group_no;$group_name;$name;$sub_name;$rpt_call;$gw_call;$freq;$dup;$offset;$mode;$tone;$rpt_tone;$rpt1use;$position;$lat;$lon;$utc_offset"
 
     echo
+    separator "$BLUE_BRIGHT" "═"
+    echo -e "  ${GREEN2}✔  Final record:${NC}"
+    show_entry_box "REVIEW" "$CYAN" "" \
+        "$group_no" "$group_name" "$name" "$sub_name" "$rpt_call" "$gw_call" \
+        "$freq" "$dup" "$offset" "$mode" "$tone" "$rpt_tone" \
+        "$rpt1use" "$position" "$lat" "$lon" "$utc_offset"
+
+    printf "  ${YELLOW2}Confirm save?${NC}  ${GRAY}(y/N)${NC}\n" >&2
+    printf "  > " >&2
+    local confirm
+    read confirm < /dev/tty
+    if [[ ! "$confirm" =~ ^[yY]$ ]]; then
+        echo -e "  ${YELLOW2}Operation cancelled.${NC}"
+        sleep 1; return
+    fi
+
     if [[ "$action" == "edit" ]]; then
         local tmp_file
         tmp_file=$(mktemp)
         awk -F';' -v target="$target_line" -v newline="$new_line" 'NR==target {print newline; next} {print}' "$CSV_FILE" > "$tmp_file" && mv "$tmp_file" "$CSV_FILE"
         log_operation "EDIT" "Repeater '$name' updated in CSV (line $target_line)"
-        echo -e "${GREEN2}Repeater updated successfully in CSV!${NC}"
+        echo -e "  ${GREEN2}✔  Repeater updated successfully!${NC}"
     else
         if [ ! -f "$CSV_FILE" ]; then echo "Group No;Group Name;Name;Sub Name;Repeater Call Sign;Gateway Call Sign;Frequency;Dup;Offset;Mode;TONE;Repeater Tone;RPT1USE;Position;Latitude;Longitude;UTC Offset" > "$CSV_FILE"; fi
         echo "$new_line" >> "$CSV_FILE"
         log_operation "ADD" "New repeater '$name' added to CSV"
-        echo -e "${GREEN2}New repeater added to CSV!${NC}"
+        echo -e "  ${GREEN2}✔  Repeater added successfully!${NC}"
     fi
     sleep 2
 }
@@ -1480,6 +1655,7 @@ edit_groups_menu() {
 
     echo    "1. Rename Group"
     echo -e "2. Remove Group ${GRAY}(Move linked repeaters)${NC}"
+    echo -e "3. Move Group ${GRAY}(Change number)${NC}"
     echo    "X. Back"
     separator "$GREEN2"
     read -p ">> Option: " sub_opt < /dev/tty
@@ -1487,6 +1663,7 @@ edit_groups_menu() {
     case $sub_opt in
         1) rename_group ;;
         2) remove_group ;;
+        3) move_group ;;
         *) return ;;
     esac
 }
@@ -1522,6 +1699,85 @@ rename_group() {
     awk -F';' -v tgt="$group_num" -v nname="$new_name" 'BEGIN {OFS=";"} NR==1 {print; next} $1==tgt {$2=nname; print; next} {print}' "$CSV_FILE" > "$tmp_file" && mv "$tmp_file" "$CSV_FILE"
     log_operation "RENAME_GROUP" "Group $group_num renamed from '$current_name' to '$new_name'"
     echo -e "\n${GREEN2}Name updated in all linked repeaters!${NC}"
+    sleep 2
+}
+
+move_group() {
+    declare -A map_groups; local has_groups=0
+    while IFS=';' read -r g_no g_name rest || [ -n "$g_no" ]; do
+        if [[ "$g_no" =~ ^[0-9]+$ ]]; then map_groups["$g_no"]="$g_name"; has_groups=1; fi
+    done < "$CSV_FILE"
+
+    if [ $has_groups -eq 0 ]; then echo -e "${RED}No groups found.${NC}"; sleep 2; return; fi
+
+    echo -e "\n${YELLOW2}--- CURRENT GROUPS ---${NC}"
+    for k in $(printf "%s\n" "${!map_groups[@]}" | sort -n); do printf " [%02d] - %s\n" "$k" "${map_groups[$k]}"; done
+    separator "$YELLOW2"
+
+    printf "  ${YELLOW2}Group number to move${NC}  [${GRAY}X=cancel${NC}]\n"
+    printf "  > "
+    local src_num
+    read src_num < /dev/tty
+    if [[ "${src_num,,}" == "x" || -z "$src_num" ]]; then return; fi
+    if ! [[ "$src_num" =~ ^[0-9]+$ ]]; then echo -e "  ${RED}Error: Enter only numbers.${NC}"; sleep 2; return; fi
+    src_num=$((10#$src_num))
+
+    if [[ -z "${map_groups[$src_num]}" ]]; then echo -e "  ${RED}Group $src_num does not exist.${NC}"; sleep 2; return; fi
+
+    local src_name="${map_groups[$src_num]}"
+    local count
+    count=$(awk -F';' -v g="$src_num" 'NR>1 && $1==g' "$CSV_FILE" | wc -l)
+
+    echo -e "\n  Selected: Group ${ORANGE}$src_num${NC} — ${ORANGE}$src_name${NC} (${count} repeaters)"
+
+    # Show available (free) numbers
+    local free_nums=""
+    for ((i=1; i<=50; i++)); do
+        [[ -z "${map_groups[$i]}" ]] && free_nums+="$i "
+    done
+    if [[ -n "$free_nums" ]]; then
+        echo -e "  ${GRAY}Available numbers: ${free_nums}${NC}"
+    fi
+
+    printf "\n  ${YELLOW2}New group number (1-50)${NC}  [${GRAY}X=cancel${NC}]\n"
+    printf "  > "
+    local dst_num
+    read dst_num < /dev/tty
+    if [[ "${dst_num,,}" == "x" || -z "$dst_num" ]]; then return; fi
+    if ! [[ "$dst_num" =~ ^([1-9]|[1-4][0-9]|50)$ ]]; then echo -e "  ${RED}Error: Must be between 1 and 50.${NC}"; sleep 2; return; fi
+    dst_num=$((10#$dst_num))
+
+    if [[ "$dst_num" -eq "$src_num" ]]; then echo -e "  ${YELLOW2}Same number — nothing to do.${NC}"; sleep 2; return; fi
+
+    if [[ -n "${map_groups[$dst_num]}" ]]; then
+        echo -e "  ${RED}Error: Group $dst_num already exists (${map_groups[$dst_num]}). Choose a free number.${NC}"
+        sleep 2; return
+    fi
+
+    # Confirmation
+    echo ""
+    separator "$BLUE_BRIGHT" "═"
+    echo -e "  ${YELLOW2}Moving group:${NC}"
+    echo -e "    ${ORANGE}[$src_num] $src_name${NC}  →  ${GREEN2}[$dst_num] $src_name${NC}"
+    echo -e "    ${GRAY}($count repeaters will be updated)${NC}"
+    separator "$BLUE_BRIGHT" "═"
+
+    printf "\n  ${YELLOW2}Confirm move?${NC}  ${GRAY}(y/N)${NC}\n"
+    printf "  > "
+    local confirm
+    read confirm < /dev/tty
+    if [[ ! "$confirm" =~ ^[yY]$ ]]; then
+        echo -e "  ${CYAN}Operation cancelled.${NC}"
+        sleep 1; return
+    fi
+
+    local tmp_file
+    tmp_file=$(mktemp)
+    awk -F';' -v OFS=';' -v src="$src_num" -v dst="$dst_num" \
+        'NR==1 {print; next} $1==src {$1=dst} {print}' "$CSV_FILE" > "$tmp_file" && mv "$tmp_file" "$CSV_FILE"
+
+    log_operation "MOVE_GROUP" "Group $src_num ($src_name) moved to number $dst_num"
+    echo -e "\n  ${GREEN2}✔  Group moved: [$src_num] → [$dst_num] ($count repeaters updated)${NC}"
     sleep 2
 }
 
@@ -1582,7 +1838,7 @@ remove_group() {
 # ==============================================================================
 # OPERATION LOG
 # ==============================================================================
-LOG_FILE="./dr_manager.log"
+LOG_FILE="./dr_list.log"
 
 log_operation() {
     local operation="$1"; local detail="${2:-}"
