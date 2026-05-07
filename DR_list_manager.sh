@@ -3,7 +3,7 @@
 # ==============================================================================
 # INITIAL SETTINGS AND VARIABLES
 # ==============================================================================
-APP_VERSION="5.1.0"
+APP_VERSION="5.1.1"
 # Default .csv file, whenever the app starts this file is loaded
 CSV_FILE="Repeater_list.csv"
 TEMP_FILE="temp_fixed.csv"
@@ -1587,7 +1587,7 @@ repeater_form() {
 
     if [[ "$dup" != "OFF" && "$mode" == "DV" ]]; then
         local gw_def="${rpt_call:0:7}G"
-        gw_call=$(read_field "Gateway Call Sign" "^.{7}G$" "Requires 8 positions, last G." "${gw_call:-$gw_def}" 8) || return
+        gw_call=$(read_field "Gateway Call Sign" "^.{7}G$" "Requires 8 positions, last G." "$gw_def" 8) || return
     else
         gw_call=""
     fi
