@@ -68,7 +68,7 @@ No external packages or internet access required. Runs entirely offline.
 
 ```bash
 # Clone the repository
-git clone https://github.com/PP5KX/DR_List_Manager.git
+git clone https://github.com/PP5PK/DR_List_Manager.git
 cd DR_List_Manager
 
 # Make the script executable
@@ -448,10 +448,10 @@ This project is released under the **MIT License**. See [`LICENSE`](LICENSE) for
 
 ## Author
 
-Developed by **Daniel — PP5KX**  
+Developed by **Daniel — PP5PK**  
 Amateur radio operator based in Mafra, Santa Catarina, Brazil  
 🌐 [pp5kx.net](https://pp5kx.net) · [dvbr.net](https://dvbr.net)
 
 Part of the [dvbr.net](https://dvbr.net) open infrastructure project for the Brazilian amateur radio community.
 
-*73 de PP5KX*
+*73 de PP5PK*
