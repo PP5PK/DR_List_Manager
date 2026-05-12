@@ -1,0 +1,121 @@
+# Test_errors.csv — Test Guide
+# Total: 50 data lines (1 header + 50 entries)
+# Expected results for each line when running validation:
+
+# ═══════════════════════════════════════════════════════════
+# LINES 2-5: VALID ENTRIES (should pass without errors)
+# ═══════════════════════════════════════════════════════════
+# L2:  DV duplex UHF — all fields correct
+# L3:  FM simplex — no call, no gateway, offset 0
+# L4:  FM duplex VHF — standard entry
+# L5:  FM-N duplex UHF — with TSQL tone
+
+# ═══════════════════════════════════════════════════════════
+# LINES 6-9: AUTO-CORRECTIONS (should be fixed silently)
+# ═══════════════════════════════════════════════════════════
+# L6:  Periods in freq/offset/lat/lon/rpt_tone → commas
+# L7:  Repeater Tone "88,5" without Hz → "88,5Hz"
+# L8:  Simplex with non-zero offset → reset to 0,000000
+# L9:  DV with TONE=TONE and rpt_tone=100,0Hz → OFF/88,5Hz
+
+# ═══════════════════════════════════════════════════════════
+# LINES 10-12: GROUP NO ERRORS
+# ═══════════════════════════════════════════════════════════
+# L10: Group No = 3 (valid, just context)
+# L11: Group No = 55 (exceeds 1-50 range)
+# L12: Group No = 0 (below minimum)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 13-15: NAME LENGTH ERRORS
+# ═══════════════════════════════════════════════════════════
+# L13: Name too long (>16 chars)
+# L14: Group Name too long (>16 chars)
+# L15: Sub Name too long (>8 chars)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 16-18: FREQUENCY ERRORS
+# ═══════════════════════════════════════════════════════════
+# L16: Freq out of range (999 MHz)
+# L17: Freq wrong format (too short)
+# L18: Freq with letters
+
+# ═══════════════════════════════════════════════════════════
+# LINES 19-20: DUP / OFFSET ERRORS
+# ═══════════════════════════════════════════════════════════
+# L19: Dup = "DUPLEX" (invalid value)
+# L20: Offset missing comma format
+
+# ═══════════════════════════════════════════════════════════
+# LINES 21-22: MODE ERRORS
+# ═══════════════════════════════════════════════════════════
+# L21: Mode = "AM" (invalid)
+# L22: Mode = empty string
+
+# ═══════════════════════════════════════════════════════════
+# LINES 23-27: DV-SPECIFIC FIELD ERRORS
+# ═══════════════════════════════════════════════════════════
+# L23: DV call too short (not 8 chars with letter suffix)
+# L24: DV call without letter in position 8 (space)
+# L25: Gateway prefix doesn't match call prefix
+# L26: Gateway ends with X instead of G
+# L27: Gateway empty (required for DV duplex)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 28-29: FM-SPECIFIC FIELD ERRORS
+# ═══════════════════════════════════════════════════════════
+# L28: FM call exceeds 8 chars
+# L29: FM with gateway filled (must be empty)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 30-31: SIMPLEX FIELD ERRORS
+# ═══════════════════════════════════════════════════════════
+# L30: Simplex with Repeater Call filled
+# L31: Simplex with Gateway Call filled
+
+# ═══════════════════════════════════════════════════════════
+# LINES 32-34: TONE / REPEATER TONE ERRORS
+# ═══════════════════════════════════════════════════════════
+# L32: TONE = "DTCS" (invalid, must be OFF/TONE/TSQL)
+# L33: Repeater Tone = 55,0Hz (not in ICOM table)
+# L34: Repeater Tone empty with TONE=TONE in FM
+
+# ═══════════════════════════════════════════════════════════
+# LINES 35-39: OTHER FIELD ERRORS
+# ═══════════════════════════════════════════════════════════
+# L35: RPT1USE = "SIM" (must be YES/NO)
+# L36: Position = "Perto" (must be None/Approximate/Exact)
+# L37: Latitude out of range (999)
+# L38: Longitude out of range (9999)
+# L39: UTC Offset invalid format (25:00)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 40-41: DUPLICATE ENTRY
+# ═══════════════════════════════════════════════════════════
+# L40: First entry (valid)
+# L41: Exact duplicate of L40 (same group+name+freq+call+mode)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 42-43: DV CALLSIGN CONFLICT
+# ═══════════════════════════════════════════════════════════
+# L42: DV with PY5LL  A on 439,800 (valid)
+# L43: DV with PY5LL  A on 439,850 (CONFLICT: same DV call)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 44-48: FM CALLSIGN + BAND CONFLICTS
+# ═══════════════════════════════════════════════════════════
+# L44: FM PU5MMM on VHF 146,580 (valid)
+# L45: FM PU5MMM on VHF 146,940 (CONFLICT: same call+band)
+# L46: FM PU5MMM on UHF 439,000 (OK: same call, different band)
+# L47: FM PU5NNN on VHF (valid)
+# L48: DV PY5NNN A on UHF (OK: different callsign from L47)
+
+# ═══════════════════════════════════════════════════════════
+# LINES 49-50: STRUCTURAL ERRORS (FIELD COUNT)
+# ═══════════════════════════════════════════════════════════
+# L49: 16 fields (missing Gateway delimiter — truncated)
+# L50: 18 fields (extra field appended)
+
+# ═══════════════════════════════════════════════════════════
+# LINE 51: MULTIPLE ERRORS IN SINGLE LINE
+# ═══════════════════════════════════════════════════════════
+# L51: Almost every field is wrong simultaneously
