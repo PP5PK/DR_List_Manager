@@ -3,7 +3,7 @@
 # ==============================================================================
 # INITIAL SETTINGS AND VARIABLES
 # ==============================================================================
-APP_VERSION="5.1.1"
+APP_VERSION="5.1.2"
 # Default .csv file, whenever the app starts this file is loaded
 CSV_FILE="Repeater_list.csv"
 TEMP_FILE="temp_fixed.csv"
@@ -68,6 +68,9 @@ BLUE_BRIGHT='\033[1;34m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
 NC='\033[0m'
+
+# Set safe web-download permissions on created/edited files
+set_perms() { chmod 644 "$1" 2>/dev/null; }
 
 VALID_TONES=(
     "67,0" "69,3" "71,9" "74,4" "77,0" "79,7" "82,5" "85,4" "88,5" "91,5"
@@ -804,6 +807,7 @@ export_base() {
     done
 
     if cp "$CSV_FILE" "$export_name"; then
+        set_perms "$export_name"
         log_operation "EXPORT" "Base exported as $export_name"
         echo -e "${GREEN2}Export completed successfully!${NC}"
         echo -e "File generated: ${YELLOW}$export_name${NC}"
@@ -946,6 +950,7 @@ create_new_base() {
     done
 
     echo "Group No;Group Name;Name;Sub Name;Repeater Call Sign;Gateway Call Sign;Frequency;Dup;Offset;Mode;TONE;Repeater Tone;RPT1USE;Position;Latitude;Longitude;UTC Offset" > "$new_name"
+    set_perms "$new_name"
 
     if [[ -f "$new_name" ]]; then
         CSV_FILE="$new_name"
@@ -961,6 +966,7 @@ validate_database() {
     echo -e "\n${ORANGE}CHECKING DATABASE...${NC}"
     if validate_file_engine "$CSV_FILE"; then
         mv "$TEMP_FILE" "$CSV_FILE"
+        set_perms "$CSV_FILE"
         echo -e "${GREEN2}Database is standardized.${NC}"
     fi
     read -p $'\nPress [Enter] to return...' < /dev/tty
@@ -973,6 +979,7 @@ clear_database() {
 
     if [[ "${conf,,}" == "y" ]]; then
         echo "Group No;Group Name;Name;Sub Name;Repeater Call Sign;Gateway Call Sign;Frequency;Dup;Offset;Mode;TONE;Repeater Tone;RPT1USE;Position;Latitude;Longitude;UTC Offset" > "$CSV_FILE"
+        set_perms "$CSV_FILE"
         log_operation "CLEANUP" "Database cleared by user"
         clean_old_backups 7
         echo -e "${GREEN2}Database cleared successfully! Only the header was kept.${NC}"
@@ -1041,11 +1048,13 @@ import_csv() {
 
         if [[ "${action_import,,}" == "r" ]]; then
             mv "$TEMP_FILE" "$CSV_FILE"
+        set_perms "$CSV_FILE"
             log_operation "IMPORT" "Base replaced by: $TEMP_FILE"
             echo -e "${GREEN2}Base replaced successfully!${NC}"
         elif [[ "${action_import,,}" == "a" ]]; then
             if [ ! -f "$CSV_FILE" ]; then
                 mv "$TEMP_FILE" "$CSV_FILE"
+        set_perms "$CSV_FILE"
             else
                 declare -A base_groups
                 while IFS=';' read -r g_no g_name rest || [ -n "$g_no" ]; do
@@ -1071,6 +1080,7 @@ import_csv() {
                                 local tmp_gi; tmp_gi=$(mktemp)
                                 awk -F';' -v OFS=';' -v gno="$g" -v gname="${import_groups[$g]}" \
                                     'NR==1 {print; next} $1==gno {$2=gname} {print}' "$CSV_FILE" > "$tmp_gi" && mv "$tmp_gi" "$CSV_FILE"
+                                    set_perms "$CSV_FILE"
                                 break
                             elif [[ "${conflict_opt,,}" == "k" ]]; then
                                 local tmp_gb; tmp_gb=$(mktemp)
@@ -1085,6 +1095,7 @@ import_csv() {
                 done
 
                 tail -n +2 "$TEMP_FILE" >> "$CSV_FILE"
+                set_perms "$CSV_FILE"
             fi
             rm -f "$TEMP_FILE"
             log_operation "IMPORT" "Data added by append to current base"
@@ -1468,6 +1479,7 @@ detail_repeater() {
                     local tmp_del_file
                     tmp_del_file=$(mktemp)
                     awk -v tgt="$target_line" 'NR!=tgt' "$CSV_FILE" > "$tmp_del_file" && mv "$tmp_del_file" "$CSV_FILE"
+                    set_perms "$CSV_FILE"
                     log_operation "DELETE" "Repeater '$name' removed from base"
                     echo -e "${GREEN2}Repeater deleted successfully!${NC}"
                 else
@@ -1634,11 +1646,13 @@ repeater_form() {
         local tmp_file
         tmp_file=$(mktemp)
         awk -F';' -v target="$target_line" -v newline="$new_line" 'NR==target {print newline; next} {print}' "$CSV_FILE" > "$tmp_file" && mv "$tmp_file" "$CSV_FILE"
+        set_perms "$CSV_FILE"
         log_operation "EDIT" "Repeater '$name' updated in CSV (line $target_line)"
         echo -e "  ${GREEN2}✔  Repeater updated successfully!${NC}"
     else
-        if [ ! -f "$CSV_FILE" ]; then echo "Group No;Group Name;Name;Sub Name;Repeater Call Sign;Gateway Call Sign;Frequency;Dup;Offset;Mode;TONE;Repeater Tone;RPT1USE;Position;Latitude;Longitude;UTC Offset" > "$CSV_FILE"; fi
+        if [ ! -f "$CSV_FILE" ]; then echo "Group No;Group Name;Name;Sub Name;Repeater Call Sign;Gateway Call Sign;Frequency;Dup;Offset;Mode;TONE;Repeater Tone;RPT1USE;Position;Latitude;Longitude;UTC Offset" > "$CSV_FILE"; set_perms "$CSV_FILE"; fi
         echo "$new_line" >> "$CSV_FILE"
+        set_perms "$CSV_FILE"
         log_operation "ADD" "New repeater '$name' added to CSV"
         echo -e "  ${GREEN2}✔  Repeater added successfully!${NC}"
     fi
@@ -1697,6 +1711,7 @@ rename_group() {
     local tmp_file
     tmp_file=$(mktemp)
     awk -F';' -v tgt="$group_num" -v nname="$new_name" 'BEGIN {OFS=";"} NR==1 {print; next} $1==tgt {$2=nname; print; next} {print}' "$CSV_FILE" > "$tmp_file" && mv "$tmp_file" "$CSV_FILE"
+        set_perms "$CSV_FILE"
     log_operation "RENAME_GROUP" "Group $group_num renamed from '$current_name' to '$new_name'"
     echo -e "\n${GREEN2}Name updated in all linked repeaters!${NC}"
     sleep 2
@@ -1775,6 +1790,7 @@ move_group() {
     tmp_file=$(mktemp)
     awk -F';' -v OFS=';' -v src="$src_num" -v dst="$dst_num" \
         'NR==1 {print; next} $1==src {$1=dst} {print}' "$CSV_FILE" > "$tmp_file" && mv "$tmp_file" "$CSV_FILE"
+        set_perms "$CSV_FILE"
 
     log_operation "MOVE_GROUP" "Group $src_num ($src_name) moved to number $dst_num"
     echo -e "\n  ${GREEN2}✔  Group moved: [$src_num] → [$dst_num] ($count repeaters updated)${NC}"
@@ -1813,6 +1829,7 @@ remove_group() {
         local tmp_del
         tmp_del=$(mktemp)
         awk -F';' -v g="$group_num" 'NR==1 || $1 != g' "$CSV_FILE" > "$tmp_del" && mv "$tmp_del" "$CSV_FILE"
+        set_perms "$CSV_FILE"
         log_operation "DELETE_GROUP" "Group $group_num and its repeaters removed"
         echo -e "${GREEN2}Group and respective repeaters removed successfully!${NC}"
     elif [[ "$action_group" == "1" ]]; then
@@ -1829,6 +1846,7 @@ remove_group() {
         tmp_mv=$(mktemp)
         awk -F';' -v OFS=';' -v src="$group_num" -v dst="$target_group" -v dname="$target_name" \
             'NR==1 {print; next} $1==src {$1=dst; $2=dname} {print}' "$CSV_FILE" > "$tmp_mv" && mv "$tmp_mv" "$CSV_FILE"
+        set_perms "$CSV_FILE"
         log_operation "MOVE_GROUP" "Records from group $group_num moved to group $target_group"
         echo -e "${GREEN2}Records moved to group $target_group successfully!${NC}"
     fi
