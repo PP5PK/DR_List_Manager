@@ -3,7 +3,7 @@
 # ==============================================================================
 # INITIAL SETTINGS AND VARIABLES
 # ==============================================================================
-APP_VERSION="5.1.2"
+APP_VERSION="5.1.3"
 # Default .csv file, whenever the app starts this file is loaded
 CSV_FILE="Repeater_list.csv"
 TEMP_FILE="temp_fixed.csv"
@@ -189,7 +189,7 @@ read_tone() {
         read input_val < /dev/tty
 
         [[ "${input_val,,}" == "x" ]] && return 1
-        [[ -z "$input_val" && -n "$default_val" ]] && { echo "$default_val"; return 0; }
+        [[ -z "$input_val" && -n "$default_val" ]] && { echo "${default_val}Hz"; return 0; }
 
         if [[ "$input_val" =~ ^[0-9]+$ ]] && [ "$input_val" -ge 1 ] && [ "$input_val" -le "${#VALID_TONES[@]}" ]; then
             echo "${VALID_TONES[$((input_val - 1))]}Hz"
