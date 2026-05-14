@@ -450,7 +450,7 @@ This project is released under the **MIT License**. See [`LICENSE`](LICENSE) for
 
 Developed by **Daniel — PP5PK**  
 Amateur radio operator based in Mafra, Santa Catarina, Brazil  
-🌐 [pp5kx.net](https://pp5kx.net) · [dvbr.net](https://dvbr.net)
+🌐 [pp5pk.net](https://pp5pk.net) · [dvbr.net](https://dvbr.net)
 
 Part of the [dvbr.net](https://dvbr.net) open infrastructure project for the Brazilian amateur radio community.
 
